@@ -15,17 +15,9 @@ app.post("/chat", async (req, res) => {
   try {
     const userMsg = req.body.message;
 
-    const response = await fetch("https://api.affiliateplus.xyz/api/chatbot", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: userMsg,
-        botname: "FeelAI",
-        ownername: "Suraj"
-      })
-    });
+    const response = await fetch(
+      `https://api.affiliateplus.xyz/api/chatbot?message=${encodeURIComponent(userMsg)}&botname=FeelAI&ownername=Suraj`
+    );
 
     const data = await response.json();
 
@@ -34,7 +26,8 @@ app.post("/chat", async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({ error: "Error aaya" });
+    console.log(error);
+    res.status(500).json({ error: "Error aaya bhai" });
   }
 });
 
