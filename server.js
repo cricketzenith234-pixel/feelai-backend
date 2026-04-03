@@ -1,35 +1,30 @@
-import express from "express";
-import cors from "cors";
-
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-// Test route
-app.get("/", (req, res) => {
-  res.send("Server chal raha hai 🚀");
-});
-
-// Chat route
 app.post("/chat", async (req, res) => {
   try {
     const userMsg = req.body.message;
 
-    const response = await fetch(
-      `https://api.affiliateplus.xyz/api/chatbot?message=${encodeURIComponent(userMsg)}&botname=FeelAI&ownername=Suraj`
-    );
+    if (!userMsg) {
+      return res.status(400).json({ error: "Message missing" });
+    }
+
+    const apiUrl = `https://api.affiliateplus.xyz/api/chatbot?message=${encodeURIComponent(userMsg)}&botname=FeelAI&ownername=Suraj`;
+
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+      return res.status(500).json({ error: "API failed" });
+    }
 
     const data = await response.json();
 
     res.json({
-      reply: data.message
+      reply: data.message || "Koi reply nahi aaya"
     });
 
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Error aaya bhai" });
+    console.log("ERROR:", error);
+
+    res.status(500).json({
+      error: "Server crash hua bhai"
+    });
   }
 });
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running 🚀"));
