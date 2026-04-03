@@ -38,8 +38,8 @@ app.post("/chat", async (req, res) => {
 
     // Send reply
     res.json({
-      reply: data.message || "Koi reply nahi aaya"
-    });
+  reply: "Test successful 🚀"
+});
 
   } catch (error) {
     console.log("ERROR:", error);
