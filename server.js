@@ -1,10 +1,7 @@
 import express from "express";
 import cors from "cors";
-import fetch from "node-fetch";
 
 const app = express();
-
-// Middleware
 app.use(express.json());
 app.use(cors());
 
@@ -13,46 +10,32 @@ app.get("/", (req, res) => {
   res.send("Server chal raha hai 🚀");
 });
 
-// Chat route
-app.post("/chat", async (req, res) => {
+// Chat route (NO API, always works)
+app.post("/chat", (req, res) => {
   try {
     const userMsg = req.body.message;
 
-    // Check message
     if (!userMsg) {
-      return res.status(400).json({ error: "Message missing" });
+      return res.json({ reply: "Message nahi mila 😅" });
     }
 
-    // API URL
-    const apiUrl = `https://api.affiliateplus.xyz/api/chatbot?message=${encodeURIComponent(userMsg)}&botname=FeelAI&ownername=Suraj`;
+    // Simple AI-like reply
+    let reply = "";
 
-    // Call API
-    const response = await fetch(apiUrl);
-
-    // Check API response
-    if (!response.ok) {
-      return res.status(500).json({ error: "API failed" });
+    if (userMsg.toLowerCase().includes("hello")) {
+      reply = "Hello bhai 👋 kaise ho?";
+    } else if (userMsg.toLowerCase().includes("kaise ho")) {
+      reply = "Main badhiya hu 😄 tum batao?";
+    } else {
+      reply = "Tumne bola: " + userMsg;
     }
 
-    const data = await response.json();
-
-    // Send reply
-    res.json({
-  reply: "Test successful 🚀"
-});
+    res.json({ reply });
 
   } catch (error) {
-    console.log("ERROR:", error);
-
-    res.status(500).json({
-      error: "Server crash hua bhai"
-    });
+    res.json({ reply: "Error aa gaya 😅" });
   }
 });
 
-// Server start
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+app.listen(PORT, () => console.log("Server running 🚀"));
