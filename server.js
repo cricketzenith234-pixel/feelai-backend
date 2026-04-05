@@ -30,7 +30,7 @@ for (let i = 0; i < keys.length; i++) {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${keys[i]}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${keys[i]}`,
       {
         method: "POST",
         headers: {
