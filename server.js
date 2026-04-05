@@ -1,40 +1,54 @@
-# To run this code you need to install the following dependencies:
-# pip install google-genai
+import express from "express";
+import fetch from "node-fetch";
+import cors from "cors";
 
-import os
-from google import genai
-from google.genai import types
+const app = express();
+app.use(cors());
 
+// test route
+app.get("/", (req, res) => {
+  res.send("Server chal raha hai 🚀");
+});
 
-def generate():
-    client = genai.Client(
-        api_key=os.environ.get("AIzaSyDhi3B2LVOx0vjdDOMwtNf0EQMwHivNBg0"),
-    )
+// ✅ CHAT ROUTE
+app.get("/chat", async (req, res) => {
+  try {
+    const userMessage = req.query.message;
 
-    model = "gemini-3-flash-preview"
-    contents = [
-        types.Content(
-            role="user",
-            parts=[
-                types.Part.from_text(text="""hello"""),
-            ],
-        ),
-    ]
-    generate_content_config = types.GenerateContentConfig(
-        thinking_config=types.ThinkingConfig(
-            thinking_level="HIGH",
-        ),
-    )
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=" + process.env.GEMINI_API_KEY,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: userMessage }],
+            },
+          ],
+        }),
+      }
+    );
 
-    for chunk in client.models.generate_content_stream(
-        model=model,
-        contents=contents,
-        config=generate_content_config,
-    ):
-        if text := chunk.text:
-            print(text, end="")
+    const data = await response.json();
+    console.log(data); // debug
 
-if __name__ == "__main__":
-    generate()
+    // error check
+    if (!data.candidates) {
+      return res.json({
+        message: "API error: " + JSON.stringify(data),
+      });
+    }
 
+    const reply = data.candidates[0].content.parts[0].text;
 
+    res.json({ message: reply });
+  } catch (err) {
+    res.json({ message: "Server error 😢" });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Server running 🚀"));
