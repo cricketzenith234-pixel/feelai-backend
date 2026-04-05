@@ -15,24 +15,45 @@ app.get("/chat", async (req, res) => {
   try {
     const userMessage = req.query.message;
 
+    const keys = [
+  process.env.GEMINI_API_KEY_1,
+  process.env.GEMINI_API_KEY_2,
+  process.env.GEMINI_API_KEY_3,
+  process.env.GEMINI_API_KEY_4,
+  process.env.GEMINI_API_KEY_5
+];
+
+let data;
+
+for (let i = 0; i < keys.length; i++) {
+  if (!keys[i]) continue;
+
+  try {
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=" + process.env.GEMINI_API_KEY,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${keys[i]}`,
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           contents: [
             {
-              parts: [{ text: userMessage }],
-            },
-          ],
-        }),
+              parts: [{ text: userMessage }]
+            }
+          ]
+        })
       }
     );
 
-    const data = await response.json();
+    data = await response.json();
+
+    if (data.candidates) {
+      break;
+    }
+
+  } catch (err) {}
+}
     console.log(data); // debug
 
     // error check
