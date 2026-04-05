@@ -1,15 +1,16 @@
- import express from "express";
+import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
 
 const app = express();
 app.use(cors());
 
+// test route
 app.get("/", (req, res) => {
   res.send("Server chal raha hai 🚀");
 });
 
-// ✅ CHAT ROUTE (IMPORTANT)
+// ✅ CHAT ROUTE
 app.get("/chat", async (req, res) => {
   try {
     const userMessage = req.query.message;
@@ -32,9 +33,16 @@ app.get("/chat", async (req, res) => {
     );
 
     const data = await response.json();
+    console.log(data); // debug
 
-    const reply =
-      data.candidates?.[0]?.content?.parts?.[0]?.text || "Kuch error aaya 😢";
+    // error check
+    if (!data.candidates) {
+      return res.json({
+        message: "API error: " + JSON.stringify(data),
+      });
+    }
+
+    const reply = data.candidates[0].content.parts[0].text;
 
     res.json({ message: reply });
   } catch (err) {
