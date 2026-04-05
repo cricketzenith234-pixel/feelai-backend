@@ -1,39 +1,44 @@
-import express from "express";
+ import express from "express";
+import fetch from "node-fetch";
 import cors from "cors";
 
 const app = express();
-app.use(express.json());
 app.use(cors());
 
-// Test route
 app.get("/", (req, res) => {
   res.send("Server chal raha hai 🚀");
 });
 
-// Chat route (NO API, always works)
-app.post("/chat", (req, res) => {
+// ✅ CHAT ROUTE (IMPORTANT)
+app.get("/chat", async (req, res) => {
   try {
-    const userMsg = req.body.message;
+    const userMessage = req.query.message;
 
-    if (!userMsg) {
-      return res.json({ reply: "Message nahi mila 😅" });
-    }
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + process.env.GEMINI_API_KEY,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: userMessage }],
+            },
+          ],
+        }),
+      }
+    );
 
-    // Simple AI-like reply
-    let reply = "";
+    const data = await response.json();
 
-    if (userMsg.toLowerCase().includes("hello")) {
-      reply = "Hello bhai 👋 kaise ho?";
-    } else if (userMsg.toLowerCase().includes("kaise ho")) {
-      reply = "Main badhiya hu 😄 tum batao?";
-    } else {
-      reply = "Tumne bola: " + userMsg;
-    }
+    const reply =
+      data.candidates?.[0]?.content?.parts?.[0]?.text || "Kuch error aaya 😢";
 
-    res.json({ reply });
-
-  } catch (error) {
-    res.json({ reply: "Error aa gaya 😅" });
+    res.json({ message: reply });
+  } catch (err) {
+    res.json({ message: "Server error 😢" });
   }
 });
 
